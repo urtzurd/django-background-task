@@ -88,9 +88,10 @@ class Task(models.Model):
     def lock(self, locked_by):
         now = datetime_now()
         unlocked = Task.objects.unlocked(now).filter(pk=self.pk)
-        updated = unlocked.update(locked_by=locked_by, locked_at=now)
-        if updated:
-            return Task.objects.get(pk=self.pk)
+        unlocked.update(locked_by=locked_by, locked_at=now)
+        task = Task.objects.get(pk=self.pk)
+        if task.locked_by == locked_by:
+            return task
         return None
     
     def _extract_error(self, type, err, tb):
